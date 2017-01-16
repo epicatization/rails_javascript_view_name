@@ -1,3 +1,4 @@
 [
-    { "caption": "JS View Name", "command": "java_script_view_name" }
+    { "caption": "JS View Name", "command": "java_script_view_name" },
+    { "caption": "Open JS view", "command": "open_java_script_view" }
 ]
