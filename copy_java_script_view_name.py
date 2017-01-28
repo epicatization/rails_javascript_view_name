@@ -3,12 +3,8 @@ from .view_name import create_view_name
 
 
 class CopyJavaScriptViewNameCommand(sublime_plugin.TextCommand):
-    def is_enabled(self):
-        if '/views' not in self.view.file_name():
-            return False
-        return True
 
-    def run(self):
+    def run(self, view):
         # /app/views/admin/items/form.html.haml
         # Views.Admin.Items.Form
         variables = sublime.active_window().extract_variables()

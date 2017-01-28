@@ -1,5 +1,5 @@
 # Rails JavaScript View Name
-Sublime plugin that copies expected JS view name to clipboard
+  Some usefull stuff when working with java script views in Rails Views.
 ## Copy expected javascript view name
 ![](example.gif)
 
