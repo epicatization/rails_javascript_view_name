@@ -1,6 +1,6 @@
 import sublime, sublime_plugin
 import os, glob, functools
-from .rails_root import rails_root, _active_file_name
+from .path_helpers import application_view_path
 from .view_name import create_view_name
 
 
@@ -10,12 +10,10 @@ class OpenJavaScriptViewCommand(sublime_plugin.TextCommand):
         self.variables = sublime.active_window().extract_variables()
         if '/views' not in self.variables['file']:
             return False
-        # base_file_path: /Users/epic/apps/nau/app/views/crm/reports/index.haml
-        # get js views folder path, variables[folder] is project root
-        # result: /Users/epic/apps/nau/app/assets/javascripts/views
-        js_views_root_path = os.path.join(rails_root(self) + '/app/assets/javascripts/views')
+        # get absolute path to folder with java script views
+        js_views_root_path = os.path.join(application_view_path(self) + '/views')
 
-        # get path of folders from project root to current file
+        # get absolute path to java_script view folder that file is expected to be stored in
         # result: /Users/epic/apps/nau/app/assets/javascripts/views/static_pages/clearing/imports_and_clearing
         self.path_to_js_view_folder = os.path.join(js_views_root_path + self.variables['file_path'].split('views')[1])
 
@@ -26,17 +24,17 @@ class OpenJavaScriptViewCommand(sublime_plugin.TextCommand):
         # find or create filename
         files = glob.glob(os.path.join(self.path_to_js_view_folder, '*'))
         sublime.active_window().show_quick_panel(
-            self.quick_panel_collection(files, js_views_root_path),
-            functools.partial(self.on_selected_path, files),
+            self._quick_panel_collection(files, js_views_root_path),
+            functools.partial(self._on_selected_path, files),
             sublime.KEEP_OPEN_ON_FOCUS_LOST,
-            self.pre_selected_file(files),
-            functools.partial(self.highlighted_file, files),
+            self._pre_selected_file(files),
+            functools.partial(self._highlighted_file, files),
         )
 
-    def quick_panel_collection(self, files, js_views_root_path):
+    def _quick_panel_collection(self, files, js_views_root_path):
         return [file.replace(js_views_root_path + '/', '') for file in files] + ['Create new view']
 
-    def on_selected_path(self, files, index):
+    def _on_selected_path(self, files, index):
         files_count = len(files)
         if index == -1:
             sublime.active_window().open_file(self.variables['file'])
@@ -45,14 +43,14 @@ class OpenJavaScriptViewCommand(sublime_plugin.TextCommand):
         elif index <= files_count:
             sublime.active_window().open_file(files[index])
 
-    def highlighted_file(self, files, index):
+    def _highlighted_file(self, files, index):
         files_count = len(files)
         if index == files_count:
             sublime.active_window().open_file(self.variables['file'])
         else:
             sublime.active_window().open_file(files[index], sublime.TRANSIENT)
 
-    def pre_selected_file(self, files):
+    def _pre_selected_file(self, files):
         file = os.path.isfile(os.path.join(self.path_to_js_view_folder, self.filename + '.coffee'))
         if file:
             return files.index(os.path.join(self.path_to_js_view_folder, self.filename + '.coffee'))
